@@ -19,7 +19,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import javax.swing.JOptionPane;
 import javax.tools.Diagnostic.Kind;
 import javax.lang.model.SourceVersion;
 import javax.tools.JavaFileObject;
@@ -139,16 +138,16 @@ public class APTProcessor extends AbstractProcessor {
 						f += "tipo |" +element.asType().toString()
 								+ "|\n\n";
 						RangeMethod += 
-							"		public void " + element.getSimpleName() + "Range(){\n"
-							+ "			try {\n"
-							+ "				if (Integer.parseInt(" + element.getSimpleName() + ".getText()) < "
+							"	public void " + element.getSimpleName() + "Range(){\n"
+							+ "		try {\n"
+							+ "			if (Integer.parseInt(" + element.getSimpleName() + ".getText()) < "
 							+ min + " || Integer.parseInt(" + element.getSimpleName() + ".getText()) > " + max + ")\n"
-							+ "					JOptionPane.showMessageDialog(null,\"El numero está fuera del rango " + min + " - " + max + " \");\n"
-							+ "			} catch (Exception ex) {\n"
-							+ "				JOptionPane.showMessageDialog(null, \"Solo se puede insertar numeros\");\n"
-							+ "			}\n"
-							+ "		}\n\n";
-						CallRangeMethod += "					form." + element.getSimpleName()+ "Range();\n";
+							+ "				JOptionPane.showMessageDialog(null,\"El numero está fuera del rango " + min + " - " + max + " \");\n"
+							+ "		} catch (Exception ex) {\n"
+							+ "			JOptionPane.showMessageDialog(null, \"Solo se puede insertar numeros\");\n"
+							+ "		}\n"
+							+ "	}\n\n";
+						CallRangeMethod += "				form." + element.getSimpleName()+ "Range();\n";
 					}else{
 						messager.printMessage(Kind.ERROR,
 								"Esta anotacion solo puede usarse en tipo INT",

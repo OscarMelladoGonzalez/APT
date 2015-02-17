@@ -70,7 +70,7 @@ public class GeneradorJPanels {
 				break;
 			}
 		}
-		return cadena;
+		return cadena + "\n";
 	}
 
 	public static String getConstructor(String aptClassName, String color,
@@ -99,28 +99,29 @@ public class GeneradorJPanels {
 			return cadena;
 
 		} else {
-			String cadena = "		public "
+			String cadena = "	public "
 					+ aptClassName
 					+ "(ArrayList<String> labels, int width, ArrayList<String> tips) {\n"
-					+ "		    super(new BorderLayout());\n"
-					+ "			JPanel labelPanel = new JPanel(new GridLayout(labels.size(), 1));\n"
-					+ "			JPanel fieldPanel = new JPanel(new GridLayout(labels.size(), 1));\n\n";
+					+ "		super(new BorderLayout());\n"
+					+ "		JPanel labelPanel = new JPanel(new GridLayout(labels.size(), 1));\n"
+					+ "		JPanel fieldPanel = new JPanel(new GridLayout(labels.size(), 1));\n\n";
 			if (color != null) {
-				cadena += "			labelPanel.setBackground(Color." + color + ");\n";
+				cadena += "		labelPanel.setBackground(Color." + color + ");\n";
 			}
-			cadena += "			add(labelPanel, BorderLayout.WEST);\n"
-					+ "			add(fieldPanel, BorderLayout.CENTER);\n"
-					+ "			fields = new JTextField[labels.size()];\n\n"
-					+ "			for (int i = 0; i < labels.size(); i += 1) {\n"
-					+ "				fields[i] = new JTextField();\n"
-					+ "				if (i < tips.size())\n"
-					+ "					fields[i].setToolTipText(tips.get(i));\n"
+			cadena += "		add(labelPanel, BorderLayout.WEST);\n"
+					+ "		add(fieldPanel, BorderLayout.CENTER);\n"
+					+ "		fields = new JTextField[labels.size()];\n\n"
+					+ "		for (int i = 0; i < labels.size(); i += 1) {\n"
+					+ "			fields[i] = new JTextField();\n"
+					+ "			if (i < tips.size())\n"
+					+ "				fields[i].setToolTipText(tips.get(i));\n"
 					+ "				fields[i].setColumns(width);\n\n"
 					+ "				JLabel lab = new JLabel(labels.get(i), JLabel.RIGHT);\n"
 					+ "				lab.setLabelFor(fields[i]);\n"
 					+ "				labelPanel.add(lab);\n"
 					+ "				JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));\n"
-					+ "				p.add(fields[i]);\n" + "				fieldPanel.add(p);\n"
+					+ "				p.add(fields[i]);\n" 
+					+ "				fieldPanel.add(p);\n"
 					+ "			}\n" + "		}\n";
 			return cadena;
 		}
@@ -128,20 +129,19 @@ public class GeneradorJPanels {
 
 	public static String getConstructorGenerico(String aptClassName,
 			String color, ArrayList<String> lNombres, ArrayList<String> lTipos) {
-		String cadena = "		public "
+		String cadena = "	public "
 				+ aptClassName
 				+ "(ArrayList<String> labels, int width, ArrayList<String> tips) {\n"
-				+ "		    super(new BorderLayout());\n"
-				+ "			JPanel labelPanel = new JPanel(new GridLayout(labels.size(), 1));\n"
-				+ "			JPanel fieldPanel = new JPanel(new GridLayout(labels.size(), 1));\n\n"
-				+ " 		labelPanel.setPreferredSize(new Dimension(100, 300));\n"
-				+ " 		fieldPanel.setPreferredSize(new Dimension(300, 300));\n\n";
-		if (color != null) {
-			cadena += "			labelPanel.setBackground(Color." + color + ");\n";
-		}
-
-		cadena += "			add(labelPanel, BorderLayout.WEST);\n"
-				+ "			add(fieldPanel, BorderLayout.CENTER);\n";
+				+ "		super(new BorderLayout());\n"
+				+ "		JPanel labelPanel = new JPanel(new GridLayout(labels.size(), 1));\n"
+				+ "		JPanel fieldPanel = new JPanel(new GridLayout(labels.size(), 1));\n\n"
+				+ "		labelPanel.setPreferredSize(new Dimension(100, 300));\n"
+				+ "		fieldPanel.setPreferredSize(new Dimension(300, 300));\n\n";
+		if (color != null)
+			cadena += "		labelPanel.setBackground(Color." + color + ");\n";
+		
+		cadena += "		add(labelPanel, BorderLayout.WEST);\n"
+				+ "		add(fieldPanel, BorderLayout.CENTER);\n";
 
 		for (int i = 0; i < lTipos.size(); i++) {
 			switch (lTipos.get(i)) {
@@ -169,7 +169,7 @@ public class GeneradorJPanels {
 						+ "		p.add("
 						+ lNombres.get(i)
 						+ ");\n"
-						+ "	 	fieldPanel.add(p);\n";
+						+ "		fieldPanel.add(p);\n";
 				break;
 			case "boolean": // Tipo Boolean, JCheckBox
 				cadena += "		" + lNombres.get(i)
@@ -181,7 +181,7 @@ public class GeneradorJPanels {
 						+ "		p.add("
 						+ lNombres.get(i)
 						+ ");\n"
-						+ "	 	fieldPanel.add(p);\n";
+						+ "		fieldPanel.add(p);\n";
 				break;
 			case "java.lang.String[]": // Tipo String[], JComboBox<String>
 				// Insertar los valores #Completar
@@ -197,26 +197,27 @@ public class GeneradorJPanels {
 						+ "		p.add("
 						+ lNombres.get(i)
 						+ ");\n"
-						+ "	 	fieldPanel.add(p);\n";
+						+ "		fieldPanel.add(p);\n";
 				break;
 			default: // Tipo Array/class/enum, JList
 				cadena += "		" + lNombres.get(i) + "Label.setLabelFor("
 						+ lNombres.get(i) + ");\n";
 				cadena += "		labelPanel.add(" + lNombres.get(i) + "Label);\n\n";
 				cadena += "		p = new JPanel(new FlowLayout(FlowLayout.LEFT));\n";
-				cadena += "  	" + lNombres.get(i) + ".setSelectedIndex(1);\n"	;	
+				cadena += "		" + lNombres.get(i) + ".setSelectedIndex(1);\n"	;	
 				cadena += "		p.add(" + lNombres.get(i) + "Scroll);\n";
-				cadena += "	 	fieldPanel.add(p);\n";
+				cadena += "		fieldPanel.add(p);\n";
 				break;
 			}
 		}
-		cadena += "		}\n";
+		cadena += "	}\n\n";
 		return cadena;
 	}
 
 	public static String getMethod() {
 		return "	public String getText(int i) {\n"
-				+ "			return (fields[i].getText());\n" + "		}\n";
+				+ "		return (fields[i].getText());\n" 
+				+ "	}\n";
 	}
 
 	/*
