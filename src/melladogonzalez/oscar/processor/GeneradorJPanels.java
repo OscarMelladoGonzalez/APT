@@ -8,7 +8,7 @@ public class GeneradorJPanels {
 		return "package GUI;\n";
 	}
 
-	public static String getImports(String color, boolean main) {
+	public static String getImports(String color) {
 		String cadena = "";
 		if (color != null) {
 			cadena += "import java.awt.Color; \n";
@@ -128,7 +128,8 @@ public class GeneradorJPanels {
 	}
 
 	public static String getConstructorGenerico(String aptClassName,
-			String color, ArrayList<String> lNombres, ArrayList<String> lTipos) {
+			String color, ArrayList<String> lNombres, ArrayList<String> lTipos, ArrayList<String> lDatosComboBox) {
+		int j = 0;
 		String cadena = "	public "
 				+ aptClassName
 				+ "(ArrayList<String> labels, int width, ArrayList<String> tips) {\n"
@@ -185,9 +186,11 @@ public class GeneradorJPanels {
 				break;
 			case "java.lang.String[]": // Tipo String[], JComboBox<String>
 				// Insertar los valores #Completar
-				cadena += "		" + lNombres.get(i) + ".addItem(\"uno\");\n";
-				cadena += "		" + lNombres.get(i) + ".addItem(\"dos\");\n";
-				cadena += "		" + lNombres.get(i) + ".addItem(\"tres\");\n";
+				try{
+					cadena += lDatosComboBox.get(j);
+				}catch(Exception ex){
+					cadena += "		" + lNombres.get(i) + ".addItem(\" Se debe inicializar el comboBox \");\n";
+				}
 				cadena += "		" + lNombres.get(i)
 						+ ".setToolTipText(\"tips\");\n";
 				cadena += "		" + lNombres.get(i) + "Label.setLabelFor("
@@ -198,6 +201,7 @@ public class GeneradorJPanels {
 						+ lNombres.get(i)
 						+ ");\n"
 						+ "		fieldPanel.add(p);\n";
+				j++;
 				break;
 			default: // Tipo Array/class/enum, JList
 				cadena += "		" + lNombres.get(i) + "Label.setLabelFor("
@@ -219,25 +223,4 @@ public class GeneradorJPanels {
 				+ "		return (fields[i].getText());\n" 
 				+ "	}\n";
 	}
-
-	/*
-	 * public static String getMain(String aptClassName, String labels, String
-	 * descs, int width) { return "	public static void main(String[] args) {\n"
-	 * + "		ArrayList<String> labels = new ArrayList<String>();\n" +
-	 * "		ArrayList<String> descs = new ArrayList<String>();\n" +
-	 * "		int width = " + width + ";\n" + labels + descs + " 		final " +
-	 * aptClassName + " form = new " + aptClassName +
-	 * "(labels, width, descs);\n\n" +
-	 * "	    JButton submit = new JButton(\"Enviar\");\n\n" +
-	 * " 		submit.addActionListener(new ActionListener() {\n" +
-	 * "			public void actionPerformed(ActionEvent e) {\n" +
-	 * " 			//pendiente de implementar\n" + " 		}\n" + " 	});\n" +
-	 * "//Parte ha implementar en la otra clase\n" +
-	 * "JFrame f = new JFrame(\"Text Form Example\");\n" +
-	 * "f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);\n" +
-	 * "f.getContentPane().add(form, BorderLayout.NORTH);\n" +
-	 * "JPanel p = new JPanel();\n" + "p.add(submit);\n" +
-	 * "f.getContentPane().add(p, BorderLayout.SOUTH);\n" + "f.pack();\n" +
-	 * "f.setVisible(true);\n" + " }\n" + "}\n"; }
-	 */
 }
