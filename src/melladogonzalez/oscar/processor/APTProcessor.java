@@ -44,6 +44,7 @@ public class APTProcessor extends AbstractProcessor {
 	private String RequiredMethod = " /* Metodos Required */\n";
 	private String CallRequiredMethod = "";
 	private ArrayList<String> lDatosComboBox;
+	private String nombrePaquete = "";
 
 	@Override
 	public void init(ProcessingEnvironment env) {
@@ -106,7 +107,8 @@ public class APTProcessor extends AbstractProcessor {
 				ArrayList<String> lAnnoTypesRequired = new ArrayList<String>();
 				ArrayList<String> lAnnoValuesRequired = new ArrayList<String>();
 				getAnnoValue(element, lAnnoTypesRequired, lAnnoValuesRequired);
-
+				RequiredMethod ="";
+				CallRequiredMethod = "";
 				if (element.getKind() == ElementKind.FIELD) {
 					f += "Field |" + element.getSimpleName() + "|\n";
 					f += "TYPE |" + element.asType().toString() + "|\n";
@@ -208,7 +210,8 @@ public class APTProcessor extends AbstractProcessor {
 				ArrayList<String> lAnnoTypesValues = new ArrayList<String>();
 				ArrayList<String> lAnnoValuesValues = new ArrayList<String>();
 				getAnnoValue(element, lAnnoTypesValues, lAnnoValuesValues);
-
+				CallRangeMethod = "";
+				RangeMethod = "";
 				if (element.getKind() == ElementKind.FIELD) {
 					try {
 						f += "Field |" + element.getSimpleName() + "|\n";
@@ -305,10 +308,10 @@ public class APTProcessor extends AbstractProcessor {
 		 */
 		try {
 			for (Element element : env.getElementsAnnotatedWith(Form.class)) {
+				nombrePaquete = element.toString();
 				a += element.toString();
 				nombreClase = element.toString().substring(22);
 				a += "\n" + nombreClase + "\n";
-
 				ArrayList<String> lAnnoTypesForm = new ArrayList<String>();
 				ArrayList<String> lAnnoValuesForm = new ArrayList<String>();
 				getAnnoValue(element, lAnnoTypesForm, lAnnoValuesForm);
@@ -375,7 +378,9 @@ public class APTProcessor extends AbstractProcessor {
 					// FormAnnotation solo puede anotar clases
 					if (kind == ElementKind.CLASS) {
 						a = a + "Es una clase\n";
+						String aptName = "" + element.getSimpleName();
 						String aptClassName = "Gui" + element.getSimpleName();
+						String aptControllerName = element.getSimpleName() + "Controller";
 						String aptClassContent = "/*\n" + a + "\n   " + b
 								+ "\n   " + c + "\n   " + d + "\n   " + e
 								+ "\n   " + f + "\n   " + g + "\nhidden: "
@@ -386,6 +391,12 @@ public class APTProcessor extends AbstractProcessor {
 								+ getCodeClassJPanel(aptClassName));
 						writeClass(aptClassName, aptClassContent
 								+ getCodeClassJFrame(aptClassName));
+						
+						writeInterface(GeneradorControllers.getInterface());
+						writeController(aptControllerName, 
+								getCodeClassController(aptControllerName, aptName));
+						descs.clear();
+						lTipos.clear();
 					} else {
 						a += "NO ES UNA CLASE \n";
 
@@ -416,18 +427,44 @@ public class APTProcessor extends AbstractProcessor {
 		}
 		return true;
 	}
+	
+	public boolean writeController(String className, String classContent) {
+		JavaFileObject file = null;
+		try {
+			file = filer.createSourceFile("Controllers/" + className);
+			file.openWriter().append(classContent).close();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			return false;
+		}
+		return true;
+	}
 
+	public boolean writeInterface(String classContent) {
+		JavaFileObject file = null;
+		try {
+			file = filer.createSourceFile("Controllers/Controller");
+			file.openWriter().append(classContent).close();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			return false;
+		}
+		return true;
+	}
 	public String getCodeClassJPanel(String aptClassName) {
 		String aptClassNameAux = aptClassName + "JPanel";
 		String cadena = GeneradorJPanels.getPackage()
-				+ GeneradorJPanels.getImports(colorBackground)
+				+ GeneradorJPanels.getImports(colorBackground, nombrePaquete)
 				+ GeneradorJPanels.getClass(aptClassNameAux)
 				+ GeneradorJPanels.getAttributes(descs, lTipos)
+				+ GeneradorJPanels.getInfoForm(descs, lTipos)
 				// + GeneradorJPanels.getConstructor(aptClassName,
 				// colorBackground, main)
 				+ GeneradorJPanels.getConstructorGenerico(aptClassNameAux,
 						colorBackground, descs, lTipos, lDatosComboBox)
 				// + GeneradorJPanels.getMethod()
+				+ GeneradorJPanels.getInstanceClass(aptClassNameAux, descs, lTipos)
+				+ GeneradorJPanels.setInstanceClass(aptClassNameAux, descs, lTipos)
 				+ RequiredMethod + RangeMethod + "}\n";
 		return cadena;
 	}
@@ -435,12 +472,30 @@ public class APTProcessor extends AbstractProcessor {
 	public String getCodeClassJFrame(String aptClassName) {
 		String aptClassNameAux = aptClassName + "JPanel";
 		return GeneradorJFrames.getPackage()
-				+ GeneradorJFrames.getImports()
+				+ GeneradorJFrames.getImports(nombrePaquete)
 				+ GeneradorJFrames.getClass(aptClassName)
+				+ GeneradorJFrames.getAttributes(aptClassName)
+				+ GeneradorJFrames.getConstructorSimple(aptClassName, tituloForm, labels, 15)
 				+ GeneradorJFrames.getConstructor(aptClassName,
 						aptClassNameAux, CallRequiredMethod + CallRangeMethod)
+				+ GeneradorJFrames.getShowGUI(aptClassName)
+				+ GeneradorJFrames.getHideGUI(aptClassName)
+				+ GeneradorJFrames.getInstance(aptClassName)
+				+ GeneradorJFrames.getInstanceClass(aptClassName)
+				+ GeneradorJFrames.setInstanceClass(aptClassName)
 				+ GeneradorJFrames
 						.getMain(aptClassName, tituloForm, labels, 15);
+	}
+	
+	public String getCodeClassController(String aptClassName, String aptName){
+		return GeneradorControllers.getPackage()
+				+ GeneradorControllers.getClass(aptClassName, aptName)
+				+ GeneradorControllers.getMethodAdd(aptClassName)
+				+ GeneradorControllers.getMethodDelete()
+				+ GeneradorControllers.getMethodUpdate(aptClassName)
+				+ GeneradorControllers.getAttributes(descs, lTipos)
+				//+ GeneradorControllers.getGetsSets(descs, lTipos)
+				+ GeneradorControllers.endClass();
 	}
 
 	public void getAnnoValue(Element element, ArrayList<String> lTypes,
